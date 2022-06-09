@@ -13,10 +13,11 @@ class Auth{
         if(user && await this.#compare(password, user.password)){
             return this.#getUserData(user)
         }
+        
         return {
             success: false,
             errors: [{
-                credentials: "Las credenciales son incorrectas"
+                credentials: "The credentials are incorrect"
             }]
         }
     }
@@ -24,6 +25,9 @@ class Auth{
     async signup(data){ 
         if(data && data.password){
             data.password = await this.#encrypt(data.password)
+        }
+        data.provider = {
+            local: true
         }
         const userServ = new User()
         const result = await userServ.create(data)
@@ -41,12 +45,14 @@ class Auth{
             name: user.name,
             email: user.email,
             id: user.id,
-            role: user.role
+            role: user.role,
+            provider: user.provider,
+            idProvider: user.idProvider
         }
 
         const token = this.#createToken(userData)
         return {
-            succes: true,
+            success: true,
             user: userData,
             token
         }
@@ -78,6 +84,29 @@ class Auth{
             return false
         }
     }
+
+    async socialLogin(data){
+        const userServ = new User()
+        const user = {
+            idProvider: data.id,
+            name: data.displayName,
+            email: data.emails[0].value,
+            profilePic: data.photos[0].value,
+            provider: data.provider
+        }
+        const result = await userServ.getOrCreateByProvider(user)
+
+        if(!result.created){
+
+            // Verificar si el correo está en uso
+            return {
+                success: false,
+                errors: result.errors
+            }
+        }
+
+        return this.#getUserData(result.user)
+    } 
 }
 
 module.exports = Auth
