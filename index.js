@@ -10,6 +10,8 @@ const session = require("express-session")
 // Routes:
 const auth = require("./routes/auth")
 const users = require("./routes/users")
+const products = require("./routes/products")
+const carts = require("./routes/carts")
 const { useGoogleStrategy, useFacebookStrategy, useTwitterStrategy, useGitHubStrategy  } = require("./middleware/authProvider")
 
 const app = express()
@@ -51,6 +53,8 @@ passport.deserializeUser((user,done)=>{
 // Usando rutas:
 auth(app)
 users(app)
+products(app)
+carts(app)
 
 app.get("/", (req, res) => {
     return res.json({

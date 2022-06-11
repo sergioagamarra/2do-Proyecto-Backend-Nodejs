@@ -3,7 +3,7 @@ const {mongoose} = require("../config/db")
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "First name is required"],
+        required: [true, "Name is required"],
         minlength: [3, "No less than 3 characters"],
         maxlength: [100, "No more than 100 characters"],
         trim: true
