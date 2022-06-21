@@ -38,7 +38,6 @@ class User{
         try {
             data.password = await this.#encrypt(data.password)
             const user = await UserModel.findByIdAndUpdate(idUser, data, {new: true})
-            console.log(user);
             if (user === null){
                 return {
                     success: false,
