@@ -6,6 +6,8 @@ const dbError = require("../helpers/dbError")
 const { db } = require("../models/user")
 
 class Auth {
+
+    // Inicio de sesión
     async login(data) {
         try {
             const {email, password} = data
@@ -26,6 +28,7 @@ class Auth {
         }
     }
 
+    // Registro de nuevo usuario
     async signup(data) { 
         try {
             if(data && data.password){
@@ -50,6 +53,7 @@ class Auth {
         
     }
 
+    // Muestra los datos del usuario a excepción de su password
     #getUserData(user) {
         const userData = {
             name: user.name,
@@ -69,6 +73,7 @@ class Auth {
         }
     }
 
+    // Creación del token
     #createToken(payload) {
         const token = jwt.sign(payload, jwtSecret,{
             expiresIn: '7d'
@@ -76,6 +81,7 @@ class Auth {
         return token
     }
 
+    // Encripta información sensible por ej: password del usuario
     async #encrypt(string) {
         try{
             const salt = await bcrypt.genSalt()
@@ -87,6 +93,7 @@ class Auth {
         }
     }
 
+    // Compara la información con su imagen encriptada
     async #compare(string, hash) {
         try {
             return await bcrypt.compare(string,hash)
@@ -96,6 +103,7 @@ class Auth {
         }
     }
 
+    // Registro con red social, en caso de ya estar registrado el usuario conecta la cuenta.
     async socialLogin(data) {
         try {
             const userServ = new User()

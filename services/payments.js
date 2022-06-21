@@ -8,6 +8,7 @@ const ProductsService = require("../services/products")
 
 class Payments{
     
+    // Creación del payment intents
     async createIntent(amount, idUser, stripeCustomerID) {
         const intent = await stripe.paymentIntents.create({
             amount,
@@ -30,6 +31,7 @@ class Payments{
         }
 
         switch (event.type) {
+            // Si el pago fue exitoso se limpia el carrito, se actualiza el stock de los productos y se registra el pago
             case 'payment_intent.succeeded':
                 try {
                     const paymentIntent = event.data.object;
@@ -57,6 +59,7 @@ class Payments{
         }
     }
 
+    // Borra los productos del carrito
     async clearCart(stripeCustomerID){
         const user = await UserModel.findOne({stripeCustomerID})
         const cart = await CartModel.findByIdAndUpdate(user.id, {

@@ -5,6 +5,7 @@ const PaymentsService = require("../services/payments")
 
 class Carts{
 
+    // Devuelve todos los productos del carrito del usuario
     async getItems(idUser){
         try {
             const result = await CartModel.findById(idUser).populate("items._id")
@@ -16,6 +17,7 @@ class Carts{
         
     }
 
+    // Agrega un nuevo producto al carrito del usuario, en caso de ya estar cargado el producto aumenta su cantidad
     async addToCart(idUser, idProduct, amount){
         try {
             const product = await CartModel.findOne({
@@ -48,6 +50,7 @@ class Carts{
         }
     }
 
+    // Remueve un producto del carrito a partir de su id
     async removeFromCart(idUser, idProduct){
         try {
             const result = await CartModel.findByIdAndUpdate(idUser, {
@@ -64,6 +67,7 @@ class Carts{
         }
     }
 
+    // Creación de carrito
     async create(idUser){
         try {
             const cart = await CartModel.create({
@@ -77,6 +81,7 @@ class Carts{
         }
     }
 
+    // Función para pagar siempre y cuando haya productos en el carrito, stock y un total mayor a 0
     async pay(idUser, stripeCustomerID){
         try {
             const result = await this.getItems(idUser)
@@ -125,6 +130,7 @@ class Carts{
         
     }
 
+    // Remueve todos los productos del carrito del usuario. Ya sea porque ya pagó o porque así lo desea el usuario
     async clearCart(idUser){
         try {
             const cart = await CartModel.findByIdAndUpdate(idUser, {

@@ -4,6 +4,8 @@ const { stripeSecretKey } = require("../config")
 const stripe = require("stripe")(stripeSecretKey)
 
 class Products{
+
+    // Devuleve todos los productos
     async getAll(){
         try {
             const products = await ProductModel.find()
@@ -14,6 +16,7 @@ class Products{
         }
     }
 
+    // Crea un producto
     async create(data){
         try {
             data.category = this.#toLowerCaseList(data.category)
@@ -26,6 +29,7 @@ class Products{
         
     }
 
+    // Actualiza un producto a partir de su id
     async update(idProduct, data){
         try {
             const product = await ProductModel.findByIdAndUpdate(idProduct, data, {new: true})
@@ -36,6 +40,7 @@ class Products{
         }
     }
 
+    // Elimina un producto a partir de su id
     async delete(idProduct){
         try {
             const product = await ProductModel.findByIdAndDelete(idProduct, {new: true})
@@ -46,6 +51,7 @@ class Products{
         }
     }
 
+    // Devuelve los productos ordenados por su precio
     async filterByPrice(filter){
         try {
             if (filter.asc === undefined){
@@ -65,6 +71,7 @@ class Products{
         }
     }
 
+    // Devuelve los productos filtrando por categoría
     async filterByCategory(categories){
         try {
             categories.category = this.#toLowerCaseList(categories.category)
@@ -85,6 +92,7 @@ class Products{
         }
     }
 
+    // Devuelve los productos filtrando por categoría y ordenado por su precio
     async filterByCategoryAndPrice(filter){
         try {
             if (!filter.category || filter.asc === undefined){
@@ -118,6 +126,7 @@ class Products{
         }
     }
 
+    // Devuelve los productos filtrando por categoría y un rango de precio
     async filterByCategoryAndRangePrice(filter){
         try {
             if (!filter.category || !filter.minPrice || !filter.maxPrice){
@@ -148,6 +157,7 @@ class Products{
         }
     }
     
+    // Convierte mayúsculas a minúsculas
     #toLowerCaseList(category){
         for (let i = 0; i < category.length; i++) {
             category[i] = category[i].toLowerCase()
@@ -155,6 +165,7 @@ class Products{
         return category
     }
 
+    // Actualiza el stock después de una compra a partir del id del producto y la cantidad vendida
     async updateStock(idProduct, amount){
         try {
             const result = await ProductModel.findByIdAndUpdate(idProduct, {

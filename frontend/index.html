@@ -5,23 +5,51 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=å, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet"/>
 </head>
-<body>
-    <a href="http://localhost:4000/api/auth/google" target="_blank">Iniciar sesión con Google</a>
+<body style="background-color:ghostwhite;">
+    <div class="container-sm">
+        <div class="card text-center mt-5">
+            <h3 class="card-header">Pago</h5>
+            <div class="card-body">
+                <h5>Inicia sesión: </h5>
+                <a class="btn btn-primary my-2" style="background-color: #dd4b39;" href="http://localhost:4000/api/auth/google" role="button" target="_blank">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a class="btn btn-primary my-2" style="background-color: #3b5998;" href="http://localhost:4000/api/auth/facebook" role="button" target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a class="btn btn-primary my-2" style="background-color: #55acee;" href="http://localhost:4000/api/auth/twitter" role="button" target="_blank">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a class="btn btn-primary my-2" style="background-color: #333333;" href="http://localhost:4000/api/auth/github" role="button" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+                  
+                
 
-    <form id="payment-form">
-        <div id="payment-element">
-          <!--Stripe.js injects the Payment Element-->
-        </div>
-        <button id="submit">
-            Pay
-        </button>
-    </form>
-    
+                <form id="payment-form">
+                    <div id="payment-element">
+                      <!--Stripe.js injects the Payment Element-->
+                    </div>
+                    <button type="button" id="submit" class="btn btn-success btn-rounded mt-2 mb-1">Pagar</button>
 
-    <button id="loadPayment">Cargar formulario</button>
+                </form>
+                
+                <button id="loadPayment" type="button" class="btn btn-light btn-rounded my-1">Cargar formulario</button>
+        
+            </div>
+          </div>
+    </div>
 
     <script src="https://js.stripe.com/v3/"></script>
     <script src="./payment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    
+
+
 </body>
 </html>

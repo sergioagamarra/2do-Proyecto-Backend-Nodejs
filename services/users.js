@@ -9,6 +9,8 @@ const bcrypt = require("bcrypt")
 
 
 class User{
+
+    // Devuelve todos los usuarios 
     async getAll(){
         try {
             const users = await UserModel.find()
@@ -19,6 +21,7 @@ class User{
         }
     }
 
+    // Devuelve un usuario filtrado por su email
     async getByEmail(email){
         try{
             const user = await UserModel.findOne({email})
@@ -30,6 +33,7 @@ class User{
         }
     }
 
+    // Actualiza los datos de un usuario a partir de su id
     async update(idUser, data){
         try {
             data.password = await this.#encrypt(data.password)
@@ -48,6 +52,7 @@ class User{
         }
     }
 
+    // Elimina un usuario a partir de su id
     async delete(idUser){
         try {
             const user =  await UserModel.findByIdAndDelete(idUser, {new: true})
@@ -58,6 +63,7 @@ class User{
         }
     }
 
+    // Crea un usuario, al mismo tiempo se crea el customer de stripe, su carrito y sus registros de pago vacíos
     async create(data){
         let stripeCustomerID
         try{ 
@@ -87,6 +93,7 @@ class User{
         }
     }
 
+    // Crea un usuario a partir de una red social, en caso de ya existir el usuario se vincula la cuenta con la red social
     async getOrCreateByProvider(data){ 
 
         const userData = {
@@ -147,6 +154,7 @@ class User{
         }
     }
 
+    // Función para encripar datos sensibles
     async #encrypt(string) {
         try{
             const salt = await bcrypt.genSalt()
