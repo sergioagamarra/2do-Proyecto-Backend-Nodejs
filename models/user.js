@@ -36,7 +36,8 @@ const userSchema = new mongoose.Schema({
         google: String,
         twitter: String,
         github: String
-    }
+    },
+    stripeCustomerID: String
 })
 
 const UserModel = mongoose.model("user", userSchema)

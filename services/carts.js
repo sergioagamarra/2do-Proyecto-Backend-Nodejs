@@ -1,47 +1,141 @@
 const CartModel = require("../models/cart")
+const UserModel = require("../models/user")
+const dbError = require("../helpers/dbError")
+const PaymentsService = require("../services/payments")
 
 class Carts{
 
     async getItems(idUser){
-        const result = await CartModel.findById(idUser)
-        return result.items
+        try {
+            const result = await CartModel.findById(idUser).populate("items._id")
+            return result
+        } catch (error) {
+            console.log(error)
+            return dbError(error)
+        }
+        
     }
 
     async addToCart(idUser, idProduct, amount){
-        const result = await CartModel.findByIdAndUpdate(idUser, {
-            $push: {
-                items: {
-                    _id: idProduct,
-                    amount
-                }
+        try {
+            const product = await CartModel.findOne({
+                _id: idUser,
+                "items._id": idProduct
+            })
+            if (product) {
+                const result = await CartModel.findOneAndUpdate({
+                    _id: idUser,
+                    "items._id": idProduct
+                }, {
+                    "$inc": {
+                        "items.$.amount": amount
+                    }
+                }, {new: true}).populate("items._id")
+                return result
             }
-        }, {new: true}).populate("items._id")
-
-        return result
+            const result = await CartModel.findByIdAndUpdate(idUser, {
+                $push: {
+                    items: {
+                        _id: idProduct,
+                        amount
+                    }
+                }
+            }, {new: true}).populate("items._id")
+            return result
+        } catch (error) {
+            console.log(error)
+            return error
+        }
     }
 
     async removeFromCart(idUser, idProduct){
-        const result = await CartModel.findByIdAndUpdate(idUser, {
-            $pull: {
-                items: {
-                    _id: idProduct
+        try {
+            const result = await CartModel.findByIdAndUpdate(idUser, {
+                $pull: {
+                    items: {
+                        _id: idProduct
+                    }
                 }
-            }
-        }, {new: true})
-
-        return result
+            }, {new: true})
+            return result
+        } catch (error) {
+            console.log(error)
+            return dbError(error)
+        }
     }
 
     async create(idUser){
-        const cart = await CartModel.create({
-            _id: idUser,
-            items: []
-        })
-
-        return cart
+        try {
+            const cart = await CartModel.create({
+                _id: idUser,
+                items: []
+            })
+            return cart
+        } catch (error) {
+            console.log(error)
+            return dbError(error)
+        }
     }
 
-}
+    async pay(idUser, stripeCustomerID){
+        try {
+            const result = await this.getItems(idUser)
+            if (result) {
+                let checkStock = {
+                    success: true,
+                    message: []
+                }
+                result.items.forEach(item => {
+                    if (item._id.stock < item.amount) {
+                        checkStock.success = false
+                        checkStock.message.push("Insufficient stock for product: " + item._id.name)
+                    }
+                });
+                if (!checkStock.success) {
+                    return checkStock
+                }
+                const total = result.items.reduce((result, item) => {
+                    return result + (item._id.price * item.amount)
+                }, 0) * 100
 
+                if (total > 0) {
+                    const paymentsServ = new PaymentsService()
+                    const clientSecret = await paymentsServ.createIntent(total, idUser, stripeCustomerID)
+                    return {
+                        success: true,
+                        clientSecret
+                    }
+                } else {
+                    return {
+                        success: false,
+                        message: "Your account must be greater than 0"
+                    }
+                }
+
+            } else {
+                return {
+                    success: false,
+                    message: "You have no products in your shopping cart"
+                }
+            }
+        } catch (error) {
+            console.log(error)
+            return error
+        }
+        
+    }
+
+    async clearCart(idUser){
+        try {
+            const cart = await CartModel.findByIdAndUpdate(idUser, {
+                items: []
+            }, {new: true})
+            return cart
+        } catch (error) {
+            console.log(error)
+            return error
+        }
+    }
+}
 
 module.exports = Carts

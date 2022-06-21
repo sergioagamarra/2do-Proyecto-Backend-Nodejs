@@ -12,6 +12,8 @@ const auth = require("./routes/auth")
 const users = require("./routes/users")
 const products = require("./routes/products")
 const carts = require("./routes/carts")
+const webhook = require("./routes/webhooks")
+const payments = require("./routes/payments")
 const { useGoogleStrategy, useFacebookStrategy, useTwitterStrategy, useGitHubStrategy  } = require("./middleware/authProvider")
 
 const app = express()
@@ -23,10 +25,11 @@ connection()
 
 // Utilizando middleware
 app.use(morgan("dev"))
+app.use("/api/webhooks/stripe", express.raw({type: 'application/json'}))
 app.use(express.json())
 app.use(cookie())
 app.use(cors({
-    origin:["http://localhost:3000"],
+    origin:["http://localhost:3000","http://127.0.0.1:5500"],
     credentials:true
 }))
 app.use(session({
@@ -55,6 +58,8 @@ auth(app)
 users(app)
 products(app)
 carts(app)
+webhook(app)
+payments(app)
 
 app.get("/", (req, res) => {
     return res.json({

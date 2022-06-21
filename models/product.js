@@ -21,6 +21,7 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: [true, "stock is required"]
     },
+    category: [String],
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"

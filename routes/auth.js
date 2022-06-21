@@ -11,13 +11,6 @@ function auth(app){
 
     router.post("/login", async (req, res) => {
         const result = await authServ.login(req.body)
-        /* const token = result.token
-        return res.cookie("token", token, {
-            httpOnly: true,
-            secure: false, //Solo disponible a través de https*
-            sameSite: "none",
-            expires: new Date(new Date().setDate(new Date().getDate() + 7))
-        }).json(result) */
         return authResponse(res, result, 401)
     })
 
@@ -38,11 +31,11 @@ function auth(app){
     })
 
     router.get("/google", passport.authenticate("google", {
-        scope:["email", "profile"]
+        scope: ["email", "profile"]
     }))
+
     router.get("/google/callback", passport.authenticate("google", {session: false}), async (req, res) => {
         const user = req.user.profile
-        console.log(user)
         const result = await authServ.socialLogin(user)
         return providerResponse(res, result, 401)
     })
@@ -53,7 +46,6 @@ function auth(app){
 
     router.get("/facebook/callback", passport.authenticate("facebook", {session: false}), async (req, res) => {
         const user = req.user.profile
-        console.log(user)
         const result = await authServ.socialLogin(user)
         return providerResponse(res, result, 401)
     })
@@ -62,7 +54,6 @@ function auth(app){
 
     router.get("/twitter/callback", passport.authenticate("twitter", {session: false}), async (req, res) => {
         const user = req.user.profile
-        console.log(user)
         const result = await authServ.socialLogin(user)
         return providerResponse(res, result, 401)
     })
@@ -71,7 +62,6 @@ function auth(app){
 
     router.get("/github/callback", passport.authenticate("github", {session: false}), async (req, res) => {
         const user = req.user.profile
-        console.log(user)
         const result = await authServ.socialLogin(user)
         return providerResponse(res, result, 401)
     })

@@ -2,52 +2,63 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { jwtSecret } = require("../config")
 const User = require("./users")
+const dbError = require("../helpers/dbError")
+const { db } = require("../models/user")
 
-class Auth{
-    async login(data){
-        const {email, password} = data
-
-        const userServ = new User()
-        const user = await userServ.getByEmail(email)
-
-        if(user && await this.#compare(password, user.password)){
-            return this.#getUserData(user)
-        }
-        
-        return {
-            success: false,
-            errors: [{
-                credentials: "The credentials are incorrect"
-            }]
-        }
-    }
-
-    async signup(data){ 
-        if(data && data.password){
-            data.password = await this.#encrypt(data.password)
-        }
-        data.provider = {
-            local: true
-        }
-        const userServ = new User()
-        const result = await userServ.create(data)
-        if(!result.created){
+class Auth {
+    async login(data) {
+        try {
+            const {email, password} = data
+            const userServ = new User()
+            const user = await userServ.getByEmail(email)
+            if(user && await this.#compare(password, user.password)){
+                return this.#getUserData(user)
+            }
             return {
                 success: false,
-                errors: result.errors
+                errors: [{
+                    credentials: "The credentials are incorrect"
+                }]
             }
+        } catch (error) {
+            console.log(error);
+            return dbError(error)
         }
-        return this.#getUserData(result.user)
     }
 
-    #getUserData(user){
+    async signup(data) { 
+        try {
+            if(data && data.password){
+                data.password = await this.#encrypt(data.password)
+            }
+            data.provider = {
+                local: true
+            }
+            const userServ = new User()
+            const result = await userServ.create(data)
+            if(!result.created){
+                return {
+                    success: false,
+                    errors: result.errors
+                }
+            }
+            return this.#getUserData(result.user)
+        } catch (error) {
+            console.log(error);
+            return dbError(error)
+        }
+        
+    }
+
+    #getUserData(user) {
         const userData = {
             name: user.name,
             email: user.email,
             id: user.id,
             role: user.role,
             provider: user.provider,
-            idProvider: user.idProvider
+            idProvider: user.idProvider,
+            stripeCustomerID: user.stripeCustomerID
         }
 
         const token = this.#createToken(userData)
@@ -58,14 +69,14 @@ class Auth{
         }
     }
 
-    #createToken(payload){
+    #createToken(payload) {
         const token = jwt.sign(payload, jwtSecret,{
             expiresIn: '7d'
         })
         return token
     }
 
-    async #encrypt(string){
+    async #encrypt(string) {
         try{
             const salt = await bcrypt.genSalt()
             const hash = await bcrypt.hash(string,salt)
@@ -76,7 +87,7 @@ class Auth{
         }
     }
 
-    async #compare(string, hash){
+    async #compare(string, hash) {
         try {
             return await bcrypt.compare(string,hash)
         } 
@@ -85,27 +96,30 @@ class Auth{
         }
     }
 
-    async socialLogin(data){
-        const userServ = new User()
-        const user = {
-            idProvider: data.id,
-            name: data.displayName,
-            email: data.emails[0].value,
-            profilePic: data.photos[0].value,
-            provider: data.provider
-        }
-        const result = await userServ.getOrCreateByProvider(user)
-
-        if(!result.created){
-
-            // Verificar si el correo está en uso
-            return {
-                success: false,
-                errors: result.errors
+    async socialLogin(data) {
+        try {
+            const userServ = new User()
+            const user = {
+                idProvider: data.id,
+                name: data.displayName,
+                email: data.emails[0].value,
+                profilePic: data.photos[0].value,
+                provider: data.provider
             }
+            const result = await userServ.getOrCreateByProvider(user)
+            if(!result.created){
+            // Verificar si el correo está en uso
+                return {
+                    success: false,
+                    errors: result.errors
+                }
+            }
+            return this.#getUserData(result.user)
+        } catch (error) {
+            console.log(error);
+            return dbError(error)
         }
-
-        return this.#getUserData(result.user)
+        
     } 
 }
 
