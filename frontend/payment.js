@@ -29,7 +29,8 @@ const initialize = async () => {
     paymentElement.mount("#payment-element");
 }
 
-form.onsubmit= async (event)=>{
+form.onsubmit= async (event) => {
+    alert("enviando")
     event.preventDefault()
     const result = await stripe.confirmPayment({
         elements,
@@ -46,3 +47,5 @@ form.onsubmit= async (event)=>{
 
     console.log(result)
 }
+
+console.log(form);

@@ -1,5 +1,4 @@
 const ProductModel = require("../models/product")
-const dbError = require("../helpers/dbError")
 const { stripeSecretKey } = require("../config")
 const stripe = require("stripe")(stripeSecretKey)
 
@@ -12,7 +11,17 @@ class Products{
             return products
         } catch (error) {
             console.log(error)
-            return dbError(error)
+            return error
+        }
+    }
+
+    async getById(idProduct){
+        try {
+            const product = await ProductModel.findById(idProduct)
+            return product
+        } catch (error) {
+            console.log();
+            return error
         }
     }
 
@@ -24,7 +33,7 @@ class Products{
             return product
         } catch (error) {
             console.log(error)
-            return dbError(error)
+            return error
         }
         
     }
@@ -36,7 +45,7 @@ class Products{
             return product
         } catch (error) {
             console.log(error)
-            return dbError(error)
+            return error
         }
     }
 
@@ -47,7 +56,7 @@ class Products{
             return product
         } catch (error) {
             console.log(error)
-            return dbError(error)
+            return error
         }
     }
 

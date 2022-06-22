@@ -14,6 +14,11 @@ function products(app){
         return res.json(result)
     })
 
+    router.get("/:idProduct", authValidation(2), async (req, res) => {
+        const result = await productsServ.getById(req.params.idProduct)
+        return res.json(result)
+    })
+
     router.post("/", authValidation(2), async (req, res) => {
         const result = await productsServ.create({
             ...req.body,
